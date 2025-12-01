@@ -1,0 +1,283 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  password  String
+  role      UserRole  @default(CUSTOMER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  books     Book[]
+  cart      Cart?
+  media     Media[]
+  orders    Order[]
+  addresses Address[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Book {
+  id          String        @id @default(cuid())
+  title       String
+  description String?
+  isbn        String?       @unique
+  price       Float
+  stock       Int           @default(0)
+  status      BookStatus    @default(ACTIVE)
+  categoryId  String?
+  seriesId    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  deletedAt   DateTime?
+  createdBy   String?
+  authorId    String?
+  publisherId String?
+  thumbnailId String?
+  gallery     BookGallery[]
+  author      Author?       @relation(fields: [authorId], references: [id])
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  series      BookSeries?   @relation(fields: [seriesId], references: [id])
+  creator     User?         @relation(fields: [createdBy], references: [id])
+  publisher   Publisher?    @relation(fields: [publisherId], references: [id])
+  thumbnail   Media?        @relation("BookThumbnail", fields: [thumbnailId], references: [id])
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+
+  @@index([title])
+  @@index([status])
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([publisherId])
+  @@index([thumbnailId])
+  @@index([seriesId])
+  @@map("books")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  imageId     String?
+  books       Book[]
+  image       Media?    @relation("CategoryImage", fields: [imageId], references: [id])
+
+  @@index([slug])
+  @@index([imageId])
+  @@map("categories")
+}
+
+
+
+model Author {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  bio       String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  imageId   String?
+  image     Media?    @relation("AuthorImage", fields: [imageId], references: [id])
+  books     Book[]
+
+  @@index([name])
+  @@index([imageId])
+  @@map("authors")
+}
+
+model Publisher {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  address   String?
+  phone     String?
+  email     String?
+  website   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  imageId   String?
+  books     Book[]
+  image     Media?    @relation("PublisherImage", fields: [imageId], references: [id])
+
+  @@index([name])
+  @@index([imageId])
+  @@map("publishers")
+}
+
+model BookSeries {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  books       Book[]
+
+  @@index([name])
+  @@map("book_series")
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER  // Chuyển khoản
+  COD            // Thanh toán khi nhận hàng
+}
+
+enum OrderStatus {
+  PENDING        // Chờ xác nhận
+  CONFIRMED      // Đã xác nhận
+  PROCESSING     // Đang xử lý
+  SHIPPED        // Đã giao hàng
+  DELIVERED      // Đã nhận hàng
+  CANCELLED      // Đã hủy
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  userId        String
+  total         Float
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod?
+  shippingName  String
+  shippingPhone String
+  shippingAddress String      @db.Text
+  shippingNote  String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  items         OrderItem[]
+  user          User          @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentMethod])
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  bookId    String
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  book      Book     @relation(fields: [bookId], references: [id])
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([bookId])
+  @@map("order_items")
+}
+
+model Media {
+  id              String        @id @default(cuid())
+  filename        String
+  originalName    String
+  mimeType        String
+  size            Int
+  path            String
+  url             String
+  uploadedBy      String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  deletedAt       DateTime?
+  authorImages    Author[]      @relation("AuthorImage")
+  bookGallery     BookGallery[]
+  bookThumbnails  Book[]        @relation("BookThumbnail")
+  categoryImages  Category[]    @relation("CategoryImage")
+  uploader        User?         @relation(fields: [uploadedBy], references: [id])
+  publisherImages Publisher[]   @relation("PublisherImage")
+
+  @@index([uploadedBy])
+  @@index([createdAt])
+  @@map("media")
+}
+
+model BookGallery {
+  id        String   @id @default(cuid())
+  bookId    String
+  mediaId   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, mediaId])
+  @@index([bookId])
+  @@index([mediaId])
+  @@map("book_gallery")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  items     CartItem[]
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  bookId    String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  cart      Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, bookId])
+  @@index([cartId])
+  @@index([bookId])
+  @@map("cart_items")
+}
+
+model Address {
+  id            String   @id @default(cuid())
+  userId        String
+  name          String   // Tên người nhận
+  phone         String   // Số điện thoại
+  address       String   @db.Text // Địa chỉ chi tiết
+  isDefault     Boolean  @default(false) // Địa chỉ mặc định
+  note          String?  @db.Text // Ghi chú
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isDefault])
+  @@map("addresses")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+  CUSTOMER
+}
+
+enum BookStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+}
