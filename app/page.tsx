@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 import BookImage from '@/components/BookImage'
 import PublicHeader from '@/components/PublicHeader'
 import PublicFooter from '@/components/PublicFooter'
+import HomeSearchBar from '@/components/HomeSearchBar'
 
 // Fetch home data directly from database
 async function getHomeData() {
@@ -306,6 +307,8 @@ export default async function Home() {
       {/* Featured Books Section */}
       <section id="books" className="py-20 bg-gradient-to-b from-gray-50 via-white to-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Search Bar */}
+          <HomeSearchBar/>
           <div className="text-center mb-16">
             <div className="inline-block mb-4">
               <span className="text-sm font-semibold text-indigo-600 bg-indigo-100 px-4 py-2 rounded-full">
