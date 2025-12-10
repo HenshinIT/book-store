@@ -391,6 +391,14 @@ export default async function Home() {
             )}
           </div>
         </div>
+        <div className="text-center mt-12">
+          <Link
+            href="/book-all"
+            className="inline-block bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            Xem Tất Cả Sách →
+          </Link>
+        </div>
       </section>
 
       {/* Book Series Section */}
@@ -600,6 +608,14 @@ export default async function Home() {
               </div>
             )}
           </div>
+        </div>
+        <div className="text-center mt-12">
+          <Link
+            href="/book-categories"
+            className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:pink-700 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+          >
+            Xem Tất Cả Danh Mục →
+          </Link>
         </div>
       </section>
 

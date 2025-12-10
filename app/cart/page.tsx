@@ -230,24 +230,25 @@ export default function CartPage() {
   }
 
   const removeItem = async (itemId: string) => {
-    setUpdating(itemId)
-    try {
-      const response = await fetch(`/api/cart/items/${itemId}`, {
-        method: 'DELETE',
-      })
+  setUpdating(itemId)
+  try {
+    const response = await fetch(`/api/cart/items/${itemId}`, {
+      method: 'DELETE',
+    })
 
-      if (response.ok) {
-        await fetchCart()
-      } else {
-        const error = await response.json()
-        alert(error.error || 'Có lỗi xảy ra')
-      }
-    } catch (error) {
-      alert('Có lỗi xảy ra khi xóa')
-    } finally {
-      setUpdating(null)
+    if (response.ok) {
+      await fetchCart()
+    } else {
+      const error = await response.json()
+      alert(error.error || 'Có lỗi xảy ra')
     }
+  } catch (error) {
+    alert('Có lỗi xảy ra khi xóa')
+  } finally {
+    setUpdating(null)
   }
+}
+
 
   const clearCart = async () => {
     if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?')) {
@@ -616,34 +617,82 @@ export default function CartPage() {
                         </p>
 
                         <div className="flex items-center gap-4">
-                          <div className="flex items-center border border-gray-300 rounded-lg">
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              disabled={updating === item.id || item.quantity <= 1}
-                              className="px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                            >
-                              −
-                            </button>
-                            <span className="px-4 py-1 min-w-[60px] text-center">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              disabled={updating === item.id || item.quantity >= item.book.stock}
-                              className="px-3 py-1 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100"
-                            >
-                              +
-                            </button>
-                          </div>
+                          <div className="flex items-center">
+                              <div className="
+                                flex items-center 
+                                rounded-lg overflow-hidden 
+                                border border-gray-300 
+                                bg-white
+                              ">
+                                
+                                {/* Nút giảm */}
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                  disabled={updating === item.id || item.quantity <= 1}
+                                  className="
+                                    w-10 h-10 flex items-center justify-center 
+                                    text-xl font-bold text-gray-700 
+                                    hover:bg-gray-100 
+                                    disabled:text-gray-400 disabled:hover:bg-white
+                                  "
+                                >
+                                  –
+                                </button>
+
+                                {/* Input số lượng */}
+                                <input
+                                  type="number"
+                                  min={1}
+                                  max={item.book.stock}
+                                  value={item.quantity}
+                                  onChange={(e) => {
+                                    const newValue = Number(e.target.value);
+                                    if (newValue >= 1 && newValue <= item.book.stock) {
+                                      updateQuantity(item.id, newValue);
+                                    }
+                                  }}
+                                  className="
+                                    w-16 h-10 
+                                    text-center text-base font-semibold text-gray-900 
+                                    border-l border-r border-gray-300 
+                                    focus:outline-none focus:bg-gray-50
+                                  "
+                                />
+
+                                {/* Nút tăng */}
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  disabled={updating === item.id || item.quantity >= item.book.stock}
+                                  className="
+                                    w-10 h-10 flex items-center justify-center 
+                                    text-xl font-bold text-gray-700 
+                                    hover:bg-gray-100 
+                                    disabled:text-gray-400 disabled:hover:bg-white
+                                  "
+                                >
+                                  +
+                                </button>
+
+                              </div>
+
+                            </div>
+
 
                           <button
+                            type="button"
                             onClick={() => removeItem(item.id)}
                             disabled={updating === item.id}
-                            className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+                            className="
+                              text-red-600 hover:text-red-700 
+                              text-sm font-medium 
+                              disabled:opacity-50 disabled:cursor-not-allowed
+                            "
                           >
                             Xóa
                           </button>
-
+                          
                           <div className="ml-auto text-right">
                             <p className="text-sm text-gray-500">Thành tiền</p>
                             <p className="text-lg font-bold text-gray-900">

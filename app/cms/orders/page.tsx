@@ -416,9 +416,12 @@ useEffect(() => {
                             </div>
                           )}
                         </div>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <Link
+                          href={`/orders/${order.id}`}
+                          className="text-xs text-blue-600 hover:underline mt-1 inline-block"
+                        >
                           {(order.totalItems || order.items.length)} sản phẩm
-                        </div>
+                        </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-bold text-blue-600">
@@ -469,7 +472,7 @@ useEffect(() => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
-                          href={`/orders/${order.id}`}
+                          href={`/cms/orders/${order.id}`}
                           className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
